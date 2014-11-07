@@ -1,3 +1,5 @@
+package personne;
+
 /**
  *
  * @author Maxime BLAISE
