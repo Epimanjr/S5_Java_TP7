@@ -50,6 +50,10 @@ public class Copieur {
                 e.ecouter();
             }
         }
+        /* On prévient les écouteurs */
+        for (Ecouteur e : this.listeEcouteurs) {
+            e.total();
+        }
     }
 
     public static void main(String[] args) {

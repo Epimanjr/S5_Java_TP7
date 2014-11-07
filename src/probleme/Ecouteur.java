@@ -12,6 +12,7 @@ package probleme;
 public class Ecouteur {
 
     public int nb;
+    public int nbTotal;
     
     public int seuil;
 
@@ -22,6 +23,7 @@ public class Ecouteur {
 
     public void ecouter() {
         nb++;
+        nbTotal++;
         if (nb == seuil) {
             System.out.println("Bloc de " + seuil + " lu.");
             
@@ -29,4 +31,8 @@ public class Ecouteur {
         }
     }
 
+    public void total() {
+        int diff = nbTotal % seuil;
+        System.out.println("Dernier bloc incomplet, j'ai lu : " + diff + "/" + (seuil));
+    }
 }
