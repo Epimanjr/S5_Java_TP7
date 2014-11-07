@@ -31,7 +31,10 @@ public class Copieur {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Copieur.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Copieur.class.getName()).log(Level.SEVERE, null, ex);
+            /* On prévient les écouteurs */
+            for (Ecouteur e : this.listeEcouteurs) {
+                e.total();
+            }
         }
     }
 
