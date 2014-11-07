@@ -43,6 +43,7 @@ public class Copieur {
     }
 
     public void copier(Reader source, Writer destination) throws IOException {
+        System.out.println("*** COPIAGE DE " + this.source + " VERS " + this.destination + "***");
         // character stream 
         int c;
         while ((c = source.read()) != -1) {
