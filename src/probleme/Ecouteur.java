@@ -10,15 +10,23 @@ package probleme;
  * @author Maxime
  */
 public class Ecouteur {
-    
+
     public int nb;
     
-    public Ecouteur() {
+    public int seuil;
+
+    public Ecouteur(int s) {
         this.nb = 0;
+        this.seuil = s;
     }
-    
+
     public void ecouter() {
         nb++;
-        System.out.println("Nombre : " + nb);
+        if (nb == seuil) {
+            System.out.println("Bloc de " + seuil + " lu.");
+            
+            nb = 0;
+        }
     }
+
 }
