@@ -25,7 +25,7 @@ public class Ecouteur {
         nb++;
         nbTotal++;
         if (nb == seuil) {
-            System.out.println("Bloc de " + seuil + " lu.");
+            System.out.println("Bloc de " + seuil + " lu.\t +");
             
             nb = 0;
         }
@@ -33,6 +33,6 @@ public class Ecouteur {
 
     public void total() {
         int diff = nbTotal % seuil;
-        System.out.println("Dernier bloc incomplet, j'ai lu : " + diff + "/" + (seuil));
+        System.out.println("Dernier bloc incomplet, j'ai lu : " + diff + "/" + (seuil) + "\t!+!");
     }
 }
