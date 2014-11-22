@@ -1,0 +1,398 @@
+//TP7 
+//Exercice
+import java.io.*;
+public class Paysan implements Serializable{
+	private int age;
+	String nom;
+	String prenom;
+	
+	public Paysan(int a, String n, String p){
+		age=a;
+		nom=n;
+		prenom=p;
+	}
+
+ 
+	public int getAge(){return age;}
+
+
+
+}
+
+
+import java.io.*;
+
+public class Test{
+	public static void main(String[] args){
+		FileOutputStream out=null;
+		try{
+			out = new FileOutputStream("mdp.txt");
+		}catch(FileNotFoundException e){System.out.println("fichier non trouvé");}
+
+		ObjectOutputStream s=null;	
+		try{
+			s = new ObjectOutputStream(out); 
+			s.writeObject(new Paysan(83,"Martin","Raymond"));
+			s.writeObject(new Paysan(82,"Martin","Robert"));
+			s.writeObject(new Paysan(81,"Martin","Andre"));
+			s.flush();	
+		}catch(IOException e){}
+		finally{
+			try{
+				s.close();
+			}catch(IOException e){}
+		}
+	
+		FileInputStream in =null;
+		try{
+			in = new FileInputStream("mdp.txt");
+		}catch(FileNotFoundException e){System.out.println("fichier non trouvé");}
+		ObjectInputStream r = null;
+		try{
+			r = new ObjectInputStream(in);
+			Paysan t = (Paysan) r.readObject();
+			Paysan u = (Paysan) r.readObject();	
+			Paysan v = (Paysan) r.readObject();
+			System.out.println(u.getAge());
+			System.out.println(v.getAge());
+			System.out.println(t.getAge());
+		}catch(Exception e){ e.printStackTrace();}
+		finally{
+			try{
+				r.close();
+			}catch(IOException e){}
+		}
+	}
+}
+
+
+
+//Probleme
+
+package fr.univ-nancy2.copie;
+import java.io.*;
+import java.util.*;
+
+public class Copieur {
+	private List<EcouteurCopie> ecouteurs = new ArrayList<EcouteurCopie>();
+	//liste des différents écouteurs de la copie
+ 
+ /**
+   * Copie d'un stream in vers un stream out.
+   * @param in stream d'entrée.
+   * @param out stream de sortie.
+   */
+  public void copier(Reader in, Writer out)
+    throws IOException {
+    // Code unicode
+    int c;
+    // Nombre de caractères copiés
+    int nbCar = 0;
+    while ((c = in.read()) != -1) {
+      out.write(c);
+      nbCar++;
+      prevenirEcouteurs(nbCar);
+    }
+  }
+
+  /**
+   * Prévient les écouteurs si le nombre de caractères déjà copiés
+   * correspond au nombre choisi par l'écouteur.
+   * @param le nombre de caractères déjà copiés.
+   */
+  private void prevenirEcouteurs(int n) {
+    for (EcouteurCopie ecouteur : ecouteurs) {
+      if (n % ecouteur.getTailleBloc() == 0) {
+	ecouteur.nouveauBlocCopie();
+      }
+    }
+  }
+
+
+  /**
+   * Ajout d'un écouteur.
+   * @param ecouteur écouteur à ajouter.
+   */
+  public void addEcouteurCopie(EcouteurCopie ecouteur) {
+    this.ecouteurs.add(ecouteur);
+  }
+}
+
+
+
+
+
+
+package fr.univ-nancy2.copie;
+/**
+ * Interface implémentée par les objets qui veulent être prévenus
+ * par un copieur si une certain nombre de caractères ont déjà été
+ * copiés.
+ */
+public interface EcouteurCopie {
+  /**
+   * Méthode appelée si le copieur a copié le bon nombre
+   * de caractères.
+   */
+  public void nouveauBlocCopie();
+
+  /**
+   * Le copieur souhaite être prévenu quand le copieur aura copié
+   * le nombre de caractères renvoyé par cette méthode.
+   * @return le nombre de caractères.
+   */
+  public int getTailleBloc();
+}
+
+
+
+package fr.univ-nancy2.ecouteur;
+import fr.univ-nancy2.copie.EcouteurCopie;
+public class EcouteurCopieur implements EcouteurCopie {
+  private int tailleBloc; //nb de caractère avant affichage
+  private char car; //caractère affiché
+
+  public EcouteurCopieur(int tailleBloc, char car) {
+    this.setTailleBloc(tailleBloc);
+    this.car = car;
+  }
+
+  @Override //permet d'annoter les méthodes implémentant une interface (jdk 1.6)
+  public int getTailleBloc() {
+    return tailleBloc;
+  }
+	
+  public void setTailleBloc(int tailleBloc) {
+    if (tailleBloc > 0) {
+      this.tailleBloc = tailleBloc;
+    }
+  }
+
+  @Override
+  public void nouveauBlocCopie() {
+    System.out.print(car);
+  }
+
+  @Override
+  public String toString() {
+      return "EcouteurCopieur:tailleBloc=" + tailleBloc
+	  + ";car=" + car;
+  }
+
+}
+
+package fr.univ-nancy2.ecouteur;
+import fr.univ-nancy2.copie.Copieur;
+import java.io.*;
+
+public class TestEcouteurCopie {
+
+  public static void main(String[] args) throws IOException {
+    // Création des 2 écouteurs
+    EcouteurCopieur ec1 = new EcouteurCopieur(50, '+');
+    EcouteurCopieur ec2 = new EcouteurCopieur(70, '*');
+    // Création du copieur
+    Copieur copieur = new Copieur();
+    // Ajoute les 2 écouteurs au copieur
+    copieur.addEcouteurCopie(ec1);
+    copieur.addEcouteurCopie(ec2);
+    // Lance la copie
+    FileReader source = new FileReader("source");
+    FileWriter destination = new FileWriter("destination");
+    try {
+      copieur.copier(source, destination);
+    }
+    finally {
+      // Doit se faire dans un bloc finally
+      source.close();
+      destination.close();
+    }
+  }
+}
+
+//Probleme (add on)
+
+package fr.univ-nancy2.copie;
+
+
+import java.io.*;
+import java.util.*;
+
+/**
+ * Copieur qui prévient les écouteurs quand un bloc a été copié
+ * ou au moment de la fin de la copie.
+ */
+public class Copieur2 {
+  /**
+   * Les écouteurs de la copie.
+   */
+  private List<EcouteurCopie2> ecouteurs = 
+    new ArrayList<EcouteurCopie2>();
+
+  public void copier(Reader in, Writer out)
+    throws IOException {
+    // Code unicode
+    int c;
+    // Nombre de caractères copiés
+    int nbCar = 0;
+    try {
+      while ((c = in.read()) != -1) {
+	if (nbCar == 15) {
+	  throw new IOException();
+	}
+	out.write(c);
+	prevenirEcouteurs(++nbCar);
+      }
+    }
+    finally {
+      // Exécuté en cas d'exception ou de fin normale de copie.
+      prevenirEcouteursFinCopie(nbCar);
+    }
+  }
+
+  private void prevenirEcouteurs(int n) {
+    for (EcouteurCopie2 ecouteur : ecouteurs) {
+      if (n % ecouteur.getTailleBloc() == 0) {
+	ecouteur.nouveauBlocCopie(n);
+      }
+    }
+  }
+
+  /**
+   * Prévient les écouteurs dans le cas d'une fin de copie.
+   * @param n nombre de caractères copiés depuis le début de la copie.
+   */
+  private void prevenirEcouteursFinCopie(int n) {
+    for (EcouteurCopie2 ecouteur : ecouteurs) {
+      ecouteur.nouveauBlocCopie(n);
+    }
+  }
+
+  public void addEcouteurCopie(EcouteurCopie2 ecouteur) {
+    this.ecouteurs.add(ecouteur);
+  }
+}
+
+
+package fr.univ-nancy2.copie;
+
+/**
+ * Interface implémentée par les objets qui veulent être prévenus
+ * par un copieur si une certain nombre de caractères ont déjà été
+ * copiés.
+ */
+public interface EcouteurCopie2 {
+  /**
+   * Méthode appelée si le copieur a copié le bon nombre
+   * de caractères.
+   * @param n le nombre de caractères copiés.
+   */
+  public void nouveauBlocCopie(int n);
+  /**
+   * Le copieur souhaite être prévenu quand le copieur aura copié
+   * un nouveau bloc dont la taille est égale
+   * au nombre de caractères renvoyé par cette méthode.
+   * @return le nombre de caractères.
+   */
+  public int getTailleBloc();
+}
+
+
+
+
+package fr.univ-nancy2.copie;
+
+/**
+ * Ecouteur de copie qui souhaite être prévenu lorsqu'un
+ * certain nombre de caractères ont été copiés ou lors de
+ * la fin de la copie.
+ * A chaque notification, l'écouteur affiche un caractère
+ * sur la sortie standard. Ce même caractère est affiché
+ * entouré de "!" lors de la fin de la copie.
+ */
+public class EcouteurCopieur2 implements EcouteurCopie2 {
+  /**
+   * L'écouteur souhaite être prévenu quand ce nombre de
+   * caractères a été transféré.
+   */
+  private int tailleBloc;
+  private char car;
+  /**
+   * Nombre de caractères copiés indiqué par la précédente notification.
+   */
+  private int nPrecedent;
+
+  public EcouteurCopieur2(int tailleBloc, char car) {
+    this.setTailleBloc(tailleBloc);
+    this.car = car;
+  }
+
+  public int getTailleBloc() {
+    return tailleBloc;
+  }
+	
+  public void setTailleBloc(int tailleBloc) {
+    if (tailleBloc > 0) {
+      this.tailleBloc = tailleBloc;
+    }
+  }
+
+  /**
+   * Affiche car si un nouveau bloc a été copié,
+   * ou car entouré de "!" à la fin de la copie
+   * (fin du fichier ou exception lancée).
+   */
+  public void nouveauBlocCopie(int n) {
+    // Fin de la copie si n
+    // n'est pas un multiple de la taille du bloc,
+    // ou si le nombre de caractères passé en argument est égal
+    // au nombre de caractères précédemment passé en argument
+    // (pour ne pas oublier le cas
+    // où la taille du fichier est un multiple
+    // de la taille du bloc).
+    if (n == nPrecedent || n % tailleBloc != 0) {
+      System.out.print("!" + car + "!");
+    }
+    else {
+      System.out.print(car);
+      nPrecedent = n;
+    }
+  }
+
+  public String toString() {
+    return "EcouteurCopieur: tailleBloc=" + tailleBloc
+      + "; car=" + car;
+  }
+
+}
+
+
+package fr.univ-nancy2.autre;
+
+import java.io.*;
+
+import fr.univ-nancy2.copie.Copieur2;
+
+public class TestEcouteurCopie2 {
+
+  public static void main(String[] args) throws IOException {
+    EcouteurCopieur2 ec1 = new EcouteurCopieur2(50, '+');
+    EcouteurCopieur2 ec2 = new EcouteurCopieur2(70, '*');
+    Copieur2 copieur = new Copieur2();
+    copieur.addEcouteurCopie(ec1);
+    copieur.addEcouteurCopie(ec2);
+    BufferedReader source = 
+      new BufferedReader(new FileReader("source.txt"));
+    BufferedWriter destination = 
+      new BufferedWriter(new FileWriter("destination.txt"));
+    try {
+      copieur.copier(source, destination);
+    }
+    finally {
+      source.close();
+      destination.close();
+    }
+  }
+
+}
+
